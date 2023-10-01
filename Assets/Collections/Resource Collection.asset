@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7671e9b8b2bb06349a6fcb05cec9ff52, type: 3}
+  m_Name: Resource Collection
+  m_EditorClassIdentifier: 
+  resources:
+  - type: 0
+    name: Gold
+    icon: {fileID: 21300000, guid: eb5036a37133ef440b412b32d6ebf4e8, type: 3}
+  - type: 1
+    name: Health
+    icon: {fileID: 21300000, guid: eb5036a37133ef440b412b32d6ebf4e8, type: 3}
+  - type: 2
+    name: Fuel
+    icon: {fileID: 21300000, guid: eb5036a37133ef440b412b32d6ebf4e8, type: 3}
+  - type: 3
+    name: Brawn
+    icon: {fileID: 21300000, guid: eb5036a37133ef440b412b32d6ebf4e8, type: 3}

@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Object : MonoBehaviour {
 
+	[SerializeField] new SpriteRenderer renderer;
 
-	Vector3 dragOffset;
 	Vector3 targetPosition;
-	Vector3 defaultPosition;
 	bool valid = true;
+	bool dragging = false;
 
 	public LocationSpot CurrentSpot { get; set; }
 
@@ -22,9 +22,9 @@ public class Object : MonoBehaviour {
 		}
 	}
 
-	static ObjectData common = new ObjectData() { MaxStacks = 2};
 
-	public ObjectData Data { get; set; } = common; //TODO: Change to passing
+	public ObjectData Data { get; set; }
+	public ObjectVisualData VisualData { get; set; }
 
 	public event Action<bool> HoverChanged;
 	public event Action<bool> SelectedChanged;
@@ -33,8 +33,8 @@ public class Object : MonoBehaviour {
 
 
 	private void Start() {
-		defaultPosition = transform.position;
-		targetPosition = defaultPosition;
+		name = VisualData.name;
+		renderer.sprite = VisualData.sprite;
 	}
 
 	public void StartHover() { HoverChanged?.Invoke(true); }
@@ -50,18 +50,25 @@ public class Object : MonoBehaviour {
 	}
 	public void StartDragging(Vector3 clickPoint) {
 		SelectedChanged?.Invoke(true);
-		dragOffset = transform.position - clickPoint;
+		dragging = true;
+		targetPosition = transform.position;
 	}
 	public void StopDragging() {
-		SelectedChanged?.Invoke(false);
-		targetPosition = CurrentSpot?.transform.position ?? defaultPosition;
+		SelectedChanged?.Invoke(false); 
+		dragging = false;
+		targetPosition = CurrentSpot?.transform.position ?? Vector3.zero;
 	}
+
 	public void SetDragPosition(Vector3 position) {
-		targetPosition = dragOffset + position;
+		targetPosition =  position;
 	}
 	public bool FitsSpot(LocationSpot spot) {
 		if (spot.CurrentObject == this) return true;
-		if (spot.CurrentObject != null && spot.CurrentObject.Data == Data && spot.CurrentObject.Stacks < Data.MaxStacks) {
+		return FitsSpot(spot, Data, Stacks);
+	}
+
+	public static bool FitsSpot(LocationSpot spot, ObjectData data, int stacks) {
+		if (spot.CurrentObject != null && spot.CurrentObject.Data == data && spot.CurrentObject.Stacks + stacks <= data.MaxStacks) {
 			return true;
 		}
 		return spot.CurrentObject == null;
@@ -72,6 +79,6 @@ public class Object : MonoBehaviour {
 	}
 
 	private void MoveTowardsTarget() {
-		transform.position = targetPosition; //TODO: Juice
+		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
 	}
 }

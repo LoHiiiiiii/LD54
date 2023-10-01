@@ -18,7 +18,7 @@ public class ObjectSpriteEffects : MonoBehaviour {
 	bool hover = false;
 	Color startColor;
 	new SpriteRenderer renderer;
-
+	int startOrder;
 
 	private void Start() {
 		affectedObject.SelectedChanged += HandleSelected;
@@ -27,6 +27,7 @@ public class ObjectSpriteEffects : MonoBehaviour {
 		startScale = transform.localScale;
 		renderer = GetComponent<SpriteRenderer>();
 		startColor = renderer.color;
+		startOrder = renderer.sortingOrder;
 	}
 
 	private void OnDestroy() {
@@ -36,7 +37,7 @@ public class ObjectSpriteEffects : MonoBehaviour {
 
 	private void HandleSelected(bool selected) {
 		this.selected = selected;
-		renderer.sortingOrder = selected ? 1 : 0;
+		renderer.sortingOrder = selected ? 2 : startOrder;
 	}
 
 	private void HandleHover(bool hover) => this.hover = hover;

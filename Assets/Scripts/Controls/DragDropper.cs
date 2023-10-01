@@ -8,6 +8,7 @@ public class DragDropper : MonoBehaviour {
 	new private Camera camera;
 
 	public Object DragObject { get; private set; }
+	public bool Active { get; set; } = true;
 
 	private Object hoverObject;
 	private LocationSpot hoverSpot;
@@ -17,6 +18,7 @@ public class DragDropper : MonoBehaviour {
 	}
 
 	public void Update() {
+		if (!Active) return;
 		var point = camera.ScreenToWorldPoint(Input.mousePosition);
 		point.z = 0;
 		var click = Input.GetMouseButtonDown(0);
