@@ -8,8 +8,7 @@ using UnityEngine;
 public class ObjectData {
 	public string Name { get; }
 	public int DepartureCostGold { get; set; }
-	public int? MaxStacks { get; set; }
-	public int ExtraSpace { get; set; }
+	public int? MaxStacks { get; set; } = 1;
 	public int? LeavesAfter { get; set; }
 	public int? LeaveGold { get; set; }	
 	public int Brawn { get; set; }
