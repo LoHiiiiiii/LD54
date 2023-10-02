@@ -166,6 +166,7 @@ MonoBehaviour:
   maxSpots: 1
   spotGap: 0
   spotWidth: 1
+  spotHeight: 1
 --- !u!1 &4966055755439448721
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,6 +176,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5317457667110738766}
+  - component: {fileID: 5355930773392319248}
   m_Layer: 0
   m_Name: Axle Pivot
   m_TagString: Untagged
@@ -197,6 +199,19 @@ Transform:
   m_Father: {fileID: 7122822479162573847}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5355930773392319248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4966055755439448721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bdb3f199920ce14e98ddb8f1d5f39ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  follow: {fileID: 8318964917400875274}
 --- !u!1 &5144085618039399009
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,6 +413,11 @@ PrefabInstance:
 --- !u!4 &7145778823682999283 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8512108104411236243, guid: 4a639782387fbed49bc2a4d5d977924d, type: 3}
+  m_PrefabInstance: {fileID: 1516572615115113568}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8318964917400875274 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7383955356551492970, guid: 4a639782387fbed49bc2a4d5d977924d, type: 3}
   m_PrefabInstance: {fileID: 1516572615115113568}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3518670396457182470

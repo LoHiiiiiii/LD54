@@ -16,7 +16,10 @@ public class OrganizationPhaseHandler : MonoBehaviour {
 			var spot = stand.GetRandomFreeSpot();
 			var data = new ObjectData();
 			data.VisualType = (ObjectVisualType)Random.Range(0, 3);
-			if (data.VisualType == ObjectVisualType.Box) data.Stats.Add(ResourceType.Fuel,1);
+			if (data.VisualType == ObjectVisualType.Box) {
+				data.AddEffects.Add(ResourceType.Gold, -100);
+				data.Stats.Add(ResourceType.Fuel, 1);
+			}
 			if (data.VisualType == ObjectVisualType.Guard) {
 				data.Stats.Add(ResourceType.Brawn, 1);
 				data.BurnEffects.Add(ResourceType.Health, -2);

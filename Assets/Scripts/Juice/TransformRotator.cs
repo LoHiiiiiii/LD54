@@ -3,15 +3,14 @@ using UnityEngine;
 public class TransformRotator : MonoBehaviour {
 	[SerializeField] float maxRPS;
 	[SerializeField] float secondsToMax;
-	[SerializeField] bool rotating;
 
 	float rps;
 
-	public bool Rotating { get => rotating; }
+	public bool Rotating { get; set; }
 
 	void Update() {
 		if ((rps < maxRPS && Rotating) || ( rps >= 0 && !Rotating)) {
-			rps = rotating ? Mathf.Min(maxRPS, rps + maxRPS/secondsToMax * Time.deltaTime) : rps - maxRPS/secondsToMax * Time.deltaTime;
+			rps = Rotating ? Mathf.Min(maxRPS, rps + maxRPS/secondsToMax * Time.deltaTime) : 0;
 		}
 
 		if (rps <= 0 && !Rotating) return;

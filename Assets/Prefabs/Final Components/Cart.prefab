@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1110821240382280305}
   - component: {fileID: 3262320313578191489}
   m_Layer: 0
-  m_Name: Sprite
+  m_Name: Cart Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,8 +25,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 623900794175330068}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0.4, z: 0}
-  m_LocalScale: {x: 9, y: 2.75, z: 1}
+  m_LocalPosition: {x: -4.25, y: -0, z: 0}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_Children: []
   m_Father: {fileID: 4799770054505585647}
   m_RootOrder: 0
@@ -70,9 +70,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
-  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
-  m_Color: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
+  m_SortingOrder: -2
+  m_Sprite: {fileID: 21300000, guid: a194189829dbfe04ea559d3a7f481456, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -129,4 +129,5 @@ MonoBehaviour:
   spotPrefab: {fileID: 4195364130954941835, guid: a56526308ceebf740815f7882e3e2707, type: 3}
   maxSpots: 10
   spotGap: 0
-  spotWidth: 0.8
+  spotWidth: 0.85
+  spotHeight: 2.5

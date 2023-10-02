@@ -33,20 +33,21 @@ public class ObjectSpawner : MonoBehaviour {
 	}
 
 	private void AddDataInfo(Object infoObject) {
-		AddInfo(infoObject.Data.ExitEffects, infoObject, (int i) => DataDisplayType.Default, "on next station");
-		AddInfo(infoObject.Data.DepartureEffects, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Increase, "per stop");
+		AddInfo(infoObject.Data.ExitEffects, infoObject, (int i) => DataDisplayType.Default,"", "on next station");
+		AddInfo(infoObject.Data.DepartureEffects, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Increase,"", "per stop");
 		AddInfo(infoObject.Data.Stats, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Default);
-		AddInfo(infoObject.Data.BurnEffects, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Increase, "when burnt");
+		AddInfo(infoObject.Data.BurnEffects, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Increase,"", "when burnt");
+		AddInfo(infoObject.Data.AddEffects, infoObject, (int i) => DataDisplayType.Default, "Cost: ", null, true);
 	}
 
-	private void AddInfo(Dictionary<ResourceType, int> effects, Object obj, Func<int, DataDisplayType> GetDisplayType, string secondary = null) {
+	private void AddInfo(Dictionary<ResourceType, int> effects, Object obj, Func<int, DataDisplayType> GetDisplayType, string pretext = null, string secondary = null, bool reverse = false) {
 		if (!effects.Any()) return; 
 		foreach (var resourceType in effects.Keys) {
 			var value = effects[resourceType];
 			if (value == 0) continue;
 			var icon = resourceHandler.GetTypeIcon(resourceType);
 			var displayInfo = Instantiate(infoPrefab, obj.ResourceInfoSlot).GetComponent<ObjectDataDisplay>();
-			displayInfo.SetUp(GetDisplayType(value), $"{(value < 0 ? "" : "+")}{value}", icon, secondary);
+			displayInfo.SetUp(GetDisplayType(value), $"{pretext}{(value < 0 || reverse ? "" : "+")}{(reverse ? -value : value)}", icon, secondary);
 		}
 
 	}

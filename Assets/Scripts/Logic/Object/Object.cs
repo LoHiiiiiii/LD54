@@ -18,6 +18,8 @@ public class Object : MonoBehaviour {
 	new Collider2D collider;
 
 	public LocationSpot CurrentSpot { get; set; }
+	public int PurchasedStacks { get; set; } = 0;
+
 	public bool Deleting { get; private set; }
 	public float RemainingDeleteRatio { get; private set; } = 1;
 	public Transform ResourceInfoSlot { get => resourceInfoSlot; }
