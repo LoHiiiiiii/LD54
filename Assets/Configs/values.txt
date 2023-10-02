@@ -1,6 +1,6 @@
 FuelPerDistance	1
 FuelMaxStacks	3
-TrainSize	8
+TrainSize	6
 PassengerReward	15
 FuelPrice	10
 BrawlerPrice	10
