@@ -10,7 +10,7 @@ public class TransformRotator : MonoBehaviour {
 
 	void Update() {
 		if ((rps < maxRPS && Rotating) || ( rps >= 0 && !Rotating)) {
-			rps = Rotating ? Mathf.Min(maxRPS, rps + maxRPS/secondsToMax * Time.deltaTime) : 0;
+			rps = Rotating ? Mathf.Min(maxRPS, rps + maxRPS/secondsToMax * Time.deltaTime) : rps - maxRPS/secondsToMax * Time.deltaTime;
 		}
 
 		if (rps <= 0 && !Rotating) return;

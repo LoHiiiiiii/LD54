@@ -20,6 +20,8 @@ public class TrainHandler : MonoBehaviour {
 	bool started = false;
 	Action StartCallback;
 
+	public int TotalSpots { get; private set; }
+
 	private void Awake() {
 		rotators = GetComponentsInChildren<TransformRotator>();
 	}
@@ -32,9 +34,9 @@ public class TrainHandler : MonoBehaviour {
 		front.SpotChangedObject += HandleBurn;
 	}
 
-	public void InvokeOrganizingPhase() => StartCoroutine(OrganizationStartRoutine());
+	public void InvokeOrganizingPhase(bool abyss = false) => StartCoroutine(OrganizationStartRoutine(abyss));
 
-	private IEnumerator OrganizationStartRoutine() {
+	private IEnumerator OrganizationStartRoutine(bool abyss) {
 		foreach (var rotator in rotators) rotator.Rotating = false;
 
 		var objects = cart.GetAllObjects();
@@ -50,7 +52,8 @@ public class TrainHandler : MonoBehaviour {
 				}
 			}
 		}
-		if (exitObjects.Any()) {
+
+		if (!abyss && exitObjects.Any()) {
 			exitObjects.Shuffle();
 			foreach (var obj in exitObjects) {
 				obj.Exiting = true;
@@ -104,9 +107,11 @@ public class TrainHandler : MonoBehaviour {
 	}
 
 	public List<Object> GetAllObjects() => cart.GetAllObjects();
+	public LocationSpot GetFirstFreeSpot(ObjectData data = null, int stacks = 1) => cart.GetFirstFreeSpot(data);
 
 	public void Initialize(ObjectSpawner spawner, int initialPassengers, int initialBrawlers, int initialFuel, int trainSpots) {
 		cart.SetSpotCount(trainSpots);
+		TotalSpots = trainSpots;
 
 		StartCallback = () => {
 			for (int i = 0; i < initialPassengers; i++) {

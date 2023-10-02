@@ -8,10 +8,18 @@ public class ValueParser : MonoBehaviour {
 	[SerializeField] TextAsset eventText;
 	[Space]
 	[SerializeField] ObjectSpawner spawner;
-	[SerializeField] ResourceHandler resourceHandler;
+	[SerializeField] ResourceHandler resourceHandler; 
+	[SerializeField] FlowHandler flowHandler;
 	[SerializeField] TrainHandler train;
 	[SerializeField] Repairer repairer;
 	[SerializeField] RoadEventHandler roadEventHandler;
+	
+
+	public void Initialize() {
+		InitializeValues();
+		InitializeEvents();
+		InitializeProgression();
+	}
 
 	public void InitializeValues() {
 		var rawValues = Regex.Split(valueText.text, "\n|\r|\r\n");
@@ -52,6 +60,7 @@ public class ValueParser : MonoBehaviour {
 		var pools = new Dictionary<int, HashSet<RoadEventData>>();
 		for (int i= 1; i < filteredValues.Length; ++i) {
 			var roadEvent = new RoadEventData();
+			Debug.Log(string.Join(" - ", filteredValues[i]));
 
 			roadEvent.Title = filteredValues[i][1];
 			roadEvent.Description = filteredValues[i][2];
@@ -178,5 +187,8 @@ public class ValueParser : MonoBehaviour {
 			pools[parse].Add(roadEvent);
 		}
 		roadEventHandler.AddPools(pools);
+	}
+
+	public void InitializeProgression() {
 	}
 }
