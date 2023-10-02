@@ -6,19 +6,28 @@ using UnityEngine;
 public class Object : MonoBehaviour {
 
 	[SerializeField] Transform spriteSlot;
+	[SerializeField] Transform resourceInfoSlot;
 	[SerializeField] float maxSpeed;
-	[SerializeField] float acceleration;
+	[SerializeField] float secondsToMax;
+	[SerializeField] float deleteDuration;
 
 	Vector3 targetPosition;
 	bool valid = true;
 	bool dragging = false;
 	float speed = 0;
+	new Collider2D collider;
 
 	public LocationSpot CurrentSpot { get; set; }
+	public bool Deleting { get; private set; }
+	public float RemainingDeleteRatio { get; private set; } = 1;
+	public Transform ResourceInfoSlot { get => resourceInfoSlot; }
+
+	public bool AtTarget { get; private set; }
+
 
 	private int stacks = 1;
-	public int Stacks { 
-		get => stacks; 
+	public int Stacks {
+		get => stacks;
 		set {
 			stacks = value;
 			StacksUpdated?.Invoke();
@@ -37,22 +46,30 @@ public class Object : MonoBehaviour {
 
 	private void Start() {
 		name = VisualData.name;
+		name = VisualData.name;
 		Instantiate(VisualData.spritePrefab, spriteSlot);
 		stacks = Data.MaxStacks ?? stacks;
 		StacksUpdated += HandleNoStacks;
 		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position;
+		collider = GetComponentInChildren<Collider2D>();
 	}
 
 	private void Destroy() {
 		StacksUpdated -= HandleNoStacks;
 	}
 
-	public void StartHover() { HoverChanged?.Invoke(true); }
-	public void StopHover() { HoverChanged?.Invoke(false); }
-	
+	public void StartHover() {
+		HoverChanged?.Invoke(true);
+		ResourceInfoSlot.gameObject.SetActive(true);
+	}
+	public void StopHover() {
+		HoverChanged?.Invoke(false);
+		ResourceInfoSlot.gameObject.SetActive(false);
+	}
+
 	public void StartHoveringOver(LocationSpot spot) {
 		valid = FitsSpot(spot);
-		if (!valid) ValidChanged?.Invoke(false); 
+		if (!valid) ValidChanged?.Invoke(false);
 	}
 	public void StopHoveringOver() {
 		if (!valid) ValidChanged?.Invoke(true);
@@ -64,13 +81,13 @@ public class Object : MonoBehaviour {
 		targetPosition = transform.position;
 	}
 	public void StopDragging() {
-		SelectedChanged?.Invoke(false); 
+		SelectedChanged?.Invoke(false);
 		dragging = false;
-		targetPosition = CurrentSpot?.transform.position ?? Vector3.zero;
+		if (!Deleting) targetPosition = CurrentSpot?.transform.position ?? Vector3.zero;
 	}
 
 	public void SetDragPosition(Vector3 position) {
-		targetPosition =  position;
+		targetPosition = position;
 	}
 	public bool FitsSpot(LocationSpot spot) {
 		if (spot.CurrentObject == this) return true;
@@ -78,7 +95,7 @@ public class Object : MonoBehaviour {
 	}
 
 	public static bool FitsSpot(LocationSpot spot, ObjectData data, int stacks) {
-		if (spot.CurrentObject != null && spot.CurrentObject.Data == data && spot.CurrentObject.Stacks + stacks <= data.MaxStacks) {
+		if (spot.CurrentObject != null && spot.CurrentObject.Data == data && spot.CurrentObject.Stacks < data.MaxStacks) {
 			return true;
 		}
 		return spot.CurrentObject == null;
@@ -86,25 +103,42 @@ public class Object : MonoBehaviour {
 
 	private void LateUpdate() {
 		MoveTowardsTarget();
+		TryDie();
 	}
 
 	private void MoveTowardsTarget() {
 		if (dragging) {
 			transform.position = targetPosition;
 			speed = 0;
+			AtTarget = true;
 			return;
 		}
-		speed += acceleration * Time.deltaTime;
+		speed += maxSpeed / secondsToMax * Time.deltaTime;
 		Vector3 target = CurrentSpot == null ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
 		transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+		AtTarget = Vector3.Distance(transform.position, target) <= Mathf.Epsilon;
 	}
 
-	public void HandleNoStacks() {
+	private void HandleNoStacks() {
 		if (Stacks <= 0) Delete(DeleteType.Stacked);
 	}
 
 	public void Delete(DeleteType deleteType = DeleteType.None) {
-		if (CurrentSpot != null) CurrentSpot.ClearSpot();
-		Destroy(gameObject);
+		if (Deleting) return;
+		collider.enabled = false;
+		if (CurrentSpot != null) {
+			CurrentSpot.ClearSpot();
+			targetPosition = CurrentSpot.transform.position;
+		}
+		CurrentSpot = null;
+		Deleting = true;
+	}
+
+	private void TryDie() {
+		if (!Deleting || !AtTarget) return;
+		RemainingDeleteRatio -= Time.deltaTime / deleteDuration;
+		if (RemainingDeleteRatio <= 0) {
+			Destroy(gameObject);
+		}
 	}
 }

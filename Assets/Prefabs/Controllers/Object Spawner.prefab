@@ -43,5 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9808a4e3ef8ca48b9f104786e52e3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceHandler: {fileID: 0}
   objectPrefab: {fileID: 8334719303914315760, guid: b34818ea8feee00458435ec60d397b50, type: 3}
+  infoPrefab: {fileID: 4319911649098851571, guid: 340b4290c498611468f9a5cbabc19082, type: 3}
   visualCollection: {fileID: 11400000, guid: b581d722f7c2ec547bad4efe647fa8f1, type: 2}

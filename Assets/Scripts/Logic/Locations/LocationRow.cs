@@ -28,6 +28,14 @@ public class LocationRow : MonoBehaviour {
 		}
 	}
 
+	public List<Object> GetAllObjects() {
+		var objects = new List<Object>();
+		foreach (var spot in spots) {
+			if (spot.CurrentObject != null) objects.Add(spot.CurrentObject);
+		}
+		return objects;
+	}
+
 	public LocationSpot GetFirstFreeSpot(Object potentialObject) => GetFirstFreeSpot(potentialObject, spots.ToList());
 	private LocationSpot GetFirstFreeSpot(Object potentialObject, List<LocationSpot> spots) {
 		foreach (var spot in spots) {

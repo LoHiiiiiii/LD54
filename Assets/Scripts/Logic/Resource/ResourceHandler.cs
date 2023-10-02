@@ -22,4 +22,14 @@ public class ResourceHandler: MonoBehaviour {
 			display.SetResource(resource);
 		}
 	}
+
+	public Sprite GetTypeIcon(ResourceType type) {
+		var resource = resourceCollection.resources.Where(r => r.type == type).FirstOrDefault();
+		if (resource == null) return null;
+		return resource.icon;
+	}
+
+	public Resource GetResource(ResourceType type) => resources[type];
+
+	public void ApplyResourceTargets() { }
 }

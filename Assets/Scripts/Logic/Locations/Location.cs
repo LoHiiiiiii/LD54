@@ -10,7 +10,9 @@ public class Location : MonoBehaviour {
 
 	public int MaxSpots { get; private set; }
 
-	public event Action<LocationSpot, Object, Object> SpotChangedObject;
+	public event Action<LocationSpot, Object, Object> SpotChangedObject; 
+	public event Action<Object, int> StacksChanged;
+
 
 	private void Awake() {
 		rows = GetComponentsInChildren<LocationRow>();
@@ -20,6 +22,14 @@ public class Location : MonoBehaviour {
 			spots += row.MaxSpots;
 		}
 		MaxSpots = spots;
+	}
+
+	public List<Object> GetAllObjects() {
+		var objects = new List<Object>();
+		foreach (var row in rows) {
+			objects.AddRange(row.GetAllObjects());
+		}
+		return objects;
 	}
 
 	public LocationSpot GetFirstFreeSpot(Object potentialObject = null) {
@@ -45,7 +55,6 @@ public class Location : MonoBehaviour {
 		Object spotPreviousObject, 
 		Object newObject) => SpotChangedObject?.Invoke(newObjectPreviousSpot, spotPreviousObject, newObject);
 
-	public void InvokeStacksChanged(Object changedObject, int stackChange) {
+	public void InvokeStacksChanged(Object obj, int stacks) => StacksChanged?.Invoke(obj, stacks);	
 
-	}
 }

@@ -42,7 +42,9 @@ public class ObjectSpriteEffects : MonoBehaviour {
 
 	private void OnDestroy() {
 		affectedObject.SelectedChanged -= HandleSelected;
-		affectedObject.ValidChanged -= HandleValid;
+		affectedObject.ValidChanged -= HandleValid; 
+		affectedObject.HoverChanged -= HandleHover;
+
 	}
 
 	private void HandleSelected(bool selected) {
@@ -58,11 +60,14 @@ public class ObjectSpriteEffects : MonoBehaviour {
 	private void HandleValid(bool valid) => this.valid = valid;
 
 	private void Update() {
+		float deathScale = affectedObject.RemainingDeleteRatio;
+
 		scaleLerp = selected || hover ? Mathf.Clamp(scaleLerp + 1f / duration * Time.deltaTime, 0, selected ? 1 : hoverScaleRatio) : Mathf.Clamp01(scaleLerp - 1f / duration * Time.deltaTime);
-		transform.localScale = Vector3.Lerp(startScale, startScale * selectedScale, scaleLerp);
+		transform.localScale = Vector3.Lerp(startScale * deathScale, startScale * selectedScale * deathScale, scaleLerp);
 		colorLerp = valid ? Mathf.Clamp01(colorLerp - 1f / duration * Time.deltaTime) : Mathf.Clamp01(colorLerp + 1f / duration * Time.deltaTime);
 		for (int i = 0; i < renderers.Length; ++i) {
 			renderers[i].color = Color.Lerp(startColors[i], invalidColor, colorLerp);
 		}
+
 	}
 }

@@ -4,11 +4,12 @@ using System.Collections.Generic;
 public class ObjectData {
 	public string Id { get; set; }
 	public ObjectVisualType VisualType { get; set; }
-	public int DepartureCostGold { get; set; }
 	public int? MaxStacks { get; set; } = 1;
-	public int? LeavesAfter { get; set; }
-	public int? LeaveGold { get; set; }	
-	public int Brawn { get; set; }
-	public int Fuel { get; set; }
+	public Dictionary<ResourceType, int> DepartureEffects { get; set; } = new Dictionary<ResourceType, int>();
+	public Dictionary<ResourceType, int> Stats { get; set; } = new Dictionary<ResourceType, int>();
+	public Dictionary<ResourceType, int> ExitEffects { get; set; } = new Dictionary<ResourceType, int>();
+	public Dictionary<ResourceType, int> BurnEffects { get; set; } = new Dictionary<ResourceType, int>();
+
+
 	public List<string> Tags { get; set; } = new List<string>();
 }
