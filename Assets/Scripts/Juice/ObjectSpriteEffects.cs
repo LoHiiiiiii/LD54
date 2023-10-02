@@ -27,7 +27,10 @@ public class ObjectSpriteEffects : MonoBehaviour {
 	private const string selectedLayer = "Selected";
 	private const string selectedCanvasLayer = "SelectedUI";
 
+	bool initialized;
+
 	private void Start() {
+		initialized = true;
 		affectedObject = GetComponentInParent<Object>();
 		affectedObject.SelectedChanged += HandleSelected;
 		affectedObject.ValidChanged += HandleValid;
@@ -41,6 +44,7 @@ public class ObjectSpriteEffects : MonoBehaviour {
 	}
 
 	private void OnDestroy() {
+		if (!initialized) return;
 		affectedObject.SelectedChanged -= HandleSelected;
 		affectedObject.ValidChanged -= HandleValid; 
 		affectedObject.HoverChanged -= HandleHover;

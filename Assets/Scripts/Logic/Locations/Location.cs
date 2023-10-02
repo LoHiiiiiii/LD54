@@ -32,19 +32,19 @@ public class Location : MonoBehaviour {
 		return objects;
 	}
 
-	public LocationSpot GetFirstFreeSpot(Object potentialObject = null) {
+	public LocationSpot GetFirstFreeSpot(ObjectData data = null, int stacks = 1) {
 		foreach(var row in rows) {
-			var result = row.GetFirstFreeSpot(potentialObject);
+			var result = row.GetFirstFreeSpot(data, stacks);
 			if (result != null) return result;
 		}
 		return null;
 	}
 
-	public LocationSpot GetRandomFreeSpot(Object potentialObject = null) {
+	public LocationSpot GetRandomFreeSpot(ObjectData data = null, int stacks = 1) {
 		var randomRows = rows.ToList();
 		randomRows.Shuffle(); 
 		foreach (var row in randomRows) {
-			var result = row.GetRandomFreeSpot(potentialObject);
+			var result = row.GetRandomFreeSpot(data, stacks);
 			if (result != null) return result;
 		}
 		return null;
@@ -55,6 +55,15 @@ public class Location : MonoBehaviour {
 		Object spotPreviousObject, 
 		Object newObject) => SpotChangedObject?.Invoke(newObjectPreviousSpot, spotPreviousObject, newObject);
 
-	public void InvokeStacksChanged(Object obj, int stacks) => StacksChanged?.Invoke(obj, stacks);	
+	public void InvokeStacksChanged(Object obj, int stacks) => StacksChanged?.Invoke(obj, stacks);
+
+	public void SetSpotCount(int count) {
+		var rows = GetComponentsInChildren<LocationRow>(true);
+		foreach (var row in rows) {
+			var prev = row.maxSpots;
+			row.maxSpots = count;
+			row.spotWidth = prev / (float)count * row.spotWidth;
+		}
+	}
 
 }

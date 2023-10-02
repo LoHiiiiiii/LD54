@@ -11,7 +11,8 @@ public class Resource {
 	public int Amount {
 		get => amount;
 		set {
-			if (Maximum != null && amount == Maximum) return;
+			if (amount == value) return;
+			if (Maximum != null && value > Maximum && amount == Maximum) return;
 			amount = Mathf.Min(value, Maximum ?? value );
 			AmountChanged?.Invoke();
 		}
@@ -23,7 +24,8 @@ public class Resource {
 	public int Target {
 		get => target;
 		set {
-			if (Maximum != null && target == Maximum) return;
+			if (target == value) return;
+			if (Maximum != null && value > Maximum && target == Maximum) return;
 			target = Mathf.Min(value, Maximum ?? value);
 			TargetChanged?.Invoke();
 		}

@@ -46,7 +46,7 @@ public class LocationSpot : MonoBehaviour {
 			if (previousSpot != null) { o.CurrentSpot.Row.StacksChanged(o, -stackIncrease); }
 			o.Stacks -= stackIncrease;
 			Row.StacksChanged(CurrentObject, stackIncrease);
-			return true;
+			return false;
 		} else {
 			o.CurrentSpot = this;
 			CurrentObject = o;

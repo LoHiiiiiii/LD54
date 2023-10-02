@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,19 @@ public class TrainHandler : MonoBehaviour {
 
 	TransformRotator[] rotators;
 
+	bool started = false;
+	Action StartCallback;
+
 	private void Awake() {
+		rotators = GetComponentsInChildren<TransformRotator>();
+	}
+
+	private void Start() {
+		started = true;
+		StartCallback?.Invoke();
 		cart.SpotChangedObject += HandleSpotChangeResources;
 		cart.StacksChanged += HandleStackChangeResources;
 		front.SpotChangedObject += HandleBurn;
-
-		rotators = GetComponentsInChildren<TransformRotator>();
 	}
 
 	public void InvokeOrganizingPhase() => StartCoroutine(OrganizationStartRoutine());
@@ -45,6 +53,7 @@ public class TrainHandler : MonoBehaviour {
 		if (exitObjects.Any()) {
 			exitObjects.Shuffle();
 			foreach (var obj in exitObjects) {
+				obj.Exiting = true;
 				foreach (var type in obj.Data.ExitEffects.Keys) {
 					resourceHandler.GetResource(type).Target += obj.Data.ExitEffects[type];
 				}
@@ -95,4 +104,31 @@ public class TrainHandler : MonoBehaviour {
 	}
 
 	public List<Object> GetAllObjects() => cart.GetAllObjects();
+
+	public void Initialize(ObjectSpawner spawner, int initialPassengers, int initialBrawlers, int initialFuel, int trainSpots) {
+		cart.SetSpotCount(trainSpots);
+
+		StartCallback = () => {
+			for (int i = 0; i < initialPassengers; i++) {
+				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Passenger));
+				if (spot == null) break;
+				spawner.SpawnObject(ObjectVisualType.Passenger, spot);
+				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+			}
+			for (int i = 0; i < initialBrawlers; i++) {
+				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Guard));
+				if (spot == null) break;
+				spawner.SpawnObject(ObjectVisualType.Guard, spot);
+				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+			}
+			for (int i = 0; i < initialFuel; i++) {
+				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Box));
+				if (spot == null) break;
+				spawner.SpawnObject(ObjectVisualType.Box, spot);
+				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+			}
+		};
+
+		if (started) StartCallback();
+	}
 }

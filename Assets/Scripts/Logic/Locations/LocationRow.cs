@@ -7,9 +7,9 @@ using UnityEngine;
 public class LocationRow : MonoBehaviour {
 
 	[SerializeField] GameObject spotPrefab;
-	[SerializeField] int maxSpots;
+	[SerializeField] public int maxSpots;
 	[SerializeField] float spotGap;
-	[SerializeField] float spotWidth;
+	[SerializeField] public float spotWidth;
 	[SerializeField] float spotHeight;
 
 
@@ -38,22 +38,22 @@ public class LocationRow : MonoBehaviour {
 		return objects;
 	}
 
-	public LocationSpot GetFirstFreeSpot(Object potentialObject) => GetFirstFreeSpot(potentialObject, spots.ToList());
-	private LocationSpot GetFirstFreeSpot(Object potentialObject, List<LocationSpot> spots) {
+	public LocationSpot GetFirstFreeSpot(ObjectData data, int stacks) => GetFirstFreeSpot(data, stacks, spots.ToList());
+	private LocationSpot GetFirstFreeSpot(ObjectData data, int stacks, List<LocationSpot> spots) {
 		foreach (var spot in spots) {
 			if (spot.CurrentObject == null) return spot;
-			if (potentialObject == null) continue;
-			if (spot.CurrentObject.Data != potentialObject.Data) continue;
+			if (data == null) continue;
+			if (spot.CurrentObject.Data.VisualType != data.VisualType) continue;
 			if (spot.CurrentObject.Data.MaxStacks == null
-				|| potentialObject.Stacks + spot.CurrentObject.Stacks < spot.CurrentObject.Data.MaxStacks) return spot;
+				|| stacks + spot.CurrentObject.Stacks <= spot.CurrentObject.Data.MaxStacks) return spot;
 		}
 		return null;
 	}
 
-	public LocationSpot GetRandomFreeSpot(Object potentialObject) {
+	public LocationSpot GetRandomFreeSpot(ObjectData data, int stacks) {
 		var randomSpots = spots.ToList();
 		randomSpots.Shuffle();
-		return GetFirstFreeSpot(potentialObject, randomSpots);
+		return GetFirstFreeSpot(data, stacks, randomSpots);
 	}
 
 	public void ObjectChanged(LocationSpot newObjectPreviousSpot, Object spotPreviousObject, Object newObject) {

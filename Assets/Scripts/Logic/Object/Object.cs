@@ -17,8 +17,13 @@ public class Object : MonoBehaviour {
 	float speed = 0;
 	new Collider2D collider;
 	int purchasedStacks = 0;
+	private LocationSpot currentSpot;
 
-	public LocationSpot CurrentSpot { get; set; }
+	public LocationSpot CurrentSpot { get => currentSpot; set {
+			currentSpot = value;
+			transform.SetParent(currentSpot?.transform, true);
+		}
+	}
 	public int PurchasedStacks { get => purchasedStacks; set {
 			purchasedStacks = value;
 			foreach (GameObject go in Costs) Destroy(go);
@@ -27,6 +32,7 @@ public class Object : MonoBehaviour {
 	}
 
 	public bool Deleting { get; private set; }
+	public bool Exiting { get; set; }
 	public float RemainingDeleteRatio { get; private set; } = 1;
 	public Transform ResourceInfoSlot { get => resourceInfoSlot; }
 
@@ -53,9 +59,7 @@ public class Object : MonoBehaviour {
 	public event Action<bool> ValidChanged;
 	public event Action StacksUpdated;
 
-
 	private void Start() {
-		name = VisualData.name;
 		name = VisualData.name;
 		Instantiate(VisualData.spritePrefab, spriteSlot);
 		StacksUpdated += HandleNoStacks;
@@ -143,6 +147,11 @@ public class Object : MonoBehaviour {
 		CurrentSpot = null;
 		AtTarget = false;
 		Deleting = true;
+		if (deleteType == DeleteType.Stacked) {
+			AtTarget = true;
+			RemainingDeleteRatio = 0;
+			TryDie();
+		}
 	}
 
 	private void TryDie() {

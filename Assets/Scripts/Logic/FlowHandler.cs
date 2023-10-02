@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ public class FlowHandler : MonoBehaviour {
 	[SerializeField] RoadEventHandler roadHandler;
 	[SerializeField] ResourceHandler resourceHandler;
 	[SerializeField] ValueParser valueParser;
+	[SerializeField] GameObject menus;
+	[SerializeField] GameObject orgHolder;
 	[Space]
 	[SerializeField] float transitionDuration;
 	[SerializeField] float eventGap;
@@ -20,19 +23,32 @@ public class FlowHandler : MonoBehaviour {
 
 	public bool Transitioning { get; private set; }
 
-	void Awake() {
+	void Start() {
 		valueParser.InitializeValues();
 		canvas.alpha = 1;
-		NextEvent();
+		StartCoroutine(FadeInRoutine(null));
 	}
 
-	public void EndCurrentEvent() => StartCoroutine(EndEventRoutine());
-	void NextEvent() => StartCoroutine(NextEventRoutine());
+	public void EndCurrentEvent() => StartCoroutine(FadeOutRoutine(NextEvent));
+	void NextEvent() {
+		PrepNextEvent();
+		StartCoroutine(FadeInRoutine(StartNextEvent));
+	}
 
-	IEnumerator NextEventRoutine() {
+	public void StartGame() {
+		StartCoroutine(FadeOutRoutine(() => {
+			menus.SetActive(false);
+			train.gameObject.SetActive(true);
+			orgHolder.SetActive(true);
+			NextEvent();
+		}));
+
+	}
+
+	IEnumerator FadeInRoutine(Action Callback) {
 		if (events.Length <= nextEventId) yield break;
 		Transitioning = true;
-		float alpha = transitionDuration <= 0 ? 0 : 1;
+		float alpha = transitionDuration <= 0 ? 0 : canvas.alpha;
 		while (alpha > 0) {
 			alpha -= Time.deltaTime / transitionDuration;
 			canvas.alpha = alpha;
@@ -42,15 +58,33 @@ public class FlowHandler : MonoBehaviour {
 
 		alpha = 0;
 		canvas.alpha = 0;
+		Callback?.Invoke();
+	}
+	private void PrepNextEvent() {
 
-		if (events[nextEventId]) train.InvokeOrganizingPhase();
-		else roadHandler.InvokeEventPhase();
+		if (events[nextEventId]) {
+			orgHolder.SetActive(true);
+			roadHandler.gameObject.SetActive(false);
+		} else {
+			orgHolder.SetActive(false);
+			roadHandler.gameObject.SetActive(true);
+		}
+	}
+	private void StartNextEvent() {
+
+		if (events[nextEventId]) {
+			train.InvokeOrganizingPhase();
+		}
+		else {
+			orgHolder.SetActive(false);
+			roadHandler.InvokeEventPhase();
+		}
 		nextEventId++;
 	}
 
-	IEnumerator EndEventRoutine() {
+	IEnumerator FadeOutRoutine(Action Callback) {
 		Transitioning = true;
-		float alpha = transitionDuration <= 0 ? 1 : 0;
+		float alpha = transitionDuration <= 0 ? 1 : canvas.alpha;
 		while (alpha < 1) {
 			alpha += Time.deltaTime / transitionDuration;
 			canvas.alpha = alpha;
@@ -61,16 +95,11 @@ public class FlowHandler : MonoBehaviour {
 		canvas.alpha = 1;
 
 		yield return new WaitForSeconds(eventGap);
-
-		var state = CheckFailState();
-
-		if (state.fails) {
-			Debug.LogError($"Fail because of {state.type}");
-		} else NextEvent();
+		Callback.Invoke();
 	}
 
 	public (bool fails, ResourceType type) CheckFailState() {
-		if (resourceHandler.GetResource(ResourceType.Gold).Amount < 0) return (true, ResourceType.Gold); 
+		if (resourceHandler.GetResource(ResourceType.Gold).Amount < 0) return (true, ResourceType.Gold);
 		if (resourceHandler.GetResource(ResourceType.Health).Amount < 0) return (true, ResourceType.Health);
 		if (!train.GetAllObjects().Any() && nextEventId < events.Length && !events[nextEventId]) return (true, ResourceType.Fuel);
 		return (false, ResourceType.Fuel);

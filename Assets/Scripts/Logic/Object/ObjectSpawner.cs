@@ -15,6 +15,7 @@ public class ObjectSpawner : MonoBehaviour {
 	Dictionary<ObjectVisualType, ObjectVisualData> visualData;
 	Dictionary<ObjectVisualType, ObjectData> objectData;
 
+	public ObjectData GetData(ObjectVisualType type) => objectData[type];
 
 	public void Initialize(int fuelMaxStacks, int passengerReward, int fuelPrice, int brawlerPrice, int burnCost, int brawlBonus) {
 
@@ -47,11 +48,11 @@ public class ObjectSpawner : MonoBehaviour {
 	public Object SpawnObject(ObjectVisualType visualType, LocationSpot spot, int stacks = 1) {
 		var data = objectData[visualType];
 		if (!Object.FitsSpot(spot, data, stacks)) return null;
-		var newObject = Instantiate(objectPrefab, transform).GetComponent<Object>();
+		var newObject = Instantiate(objectPrefab, spot.transform).GetComponent<Object>();
 		newObject.name = visualData[data.VisualType].name;
 		newObject.Data = data;
 		newObject.VisualData = visualData[data.VisualType];
-		if (!spot.TryAddObject(newObject)) { throw new Exception("Fits, but couldn't add!"); }
+		if (!spot.TryAddObject(newObject)) { Destroy(newObject.gameObject); }
 		AddDataInfo(newObject);
 		return newObject;
 	}
