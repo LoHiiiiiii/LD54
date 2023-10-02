@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7583794666574373111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4849588155758129744}
+  - component: {fileID: 6026230370810566467}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4849588155758129744
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7583794666574373111}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6026230370810566467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7583794666574373111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2787c5320264247ab8adeb090c3689, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonSFX: {fileID: 11400000, guid: 0763b784d1c4b624684f8d9d6688fa98, type: 2}
+  bellSFX: {fileID: 11400000, guid: c3792b0aa1654ce478451fa04d318b55, type: 2}
+  chainSFX: {fileID: 11400000, guid: 261f9b106fa3805479af7c34b849a476, type: 2}
+  trainDepartsSFX: {fileID: 11400000, guid: c32e3ae25a0fde84aa52bab43cadb99b, type: 2}
+  trainArrivesSFX: {fileID: 11400000, guid: 11de541b6a1ed694993b1da580fac058, type: 2}
+  burnSFX: {fileID: 11400000, guid: 32e8ccf8809b80249bfa72b1e5eab0a9, type: 2}
+  stationMusic: {fileID: 11400000, guid: 7f3782d65d25b85429bcc7b6687114ee, type: 2}
+  abyssMusic: {fileID: 11400000, guid: 41f68c0d002bc6a499e0477c12fd3fde, type: 2}
+  endMusic: {fileID: 11400000, guid: 13e95b8d7b1fca148b631a82a34b12a3, type: 2}
