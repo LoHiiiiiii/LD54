@@ -25,7 +25,16 @@ public class DragDropper : MonoBehaviour {
 		var hold = false;
 		if (!click) {
 			hold = Input.GetMouseButton(0);
+		} else {
+			var c = Physics2D.OverlapPoint(point, LayerMask.GetMask("Click"));
+			var clickable = c?.GetComponentInParent<Clickable>();
+			if (clickable != null) {
+				clickable.Click();
+				return;
+			}
+
 		}
+
 		if (DragObject == null) {
 			var c = Physics2D.OverlapPoint(point, LayerMask.GetMask("Drag"));
 			var o = c?.GetComponentInParent<Object>();

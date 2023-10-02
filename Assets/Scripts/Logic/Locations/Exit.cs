@@ -17,6 +17,13 @@ public class Exit : MonoBehaviour
 
 	private void DeleteChangedObject(LocationSpot previousSpot, Object previousObject, Object newObject) {
 		if (newObject == null) return;
-		newObject.Delete();
+		if (newObject.Stacks == 1) {
+			newObject.Delete(newObject.Exiting ? DeleteType.Exit : DeleteType.Fired);
+		} else {
+			newObject.Stacks--;
+			if (!previousSpot.TryAddObject(newObject)) {
+				newObject.Delete(DeleteType.Destroy);
+			}
+		}
 	}
 }
