@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class RoadEventHandler : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] FlowHandler handler;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public void InvokeEventPhase() => handler.EndCurrentEvent();
 }

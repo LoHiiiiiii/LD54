@@ -1,6 +1,9 @@
 using System;
+using UnityEngine;
+
 public class Resource {
 	public ResourceData Data { get;}
+	public int? Maximum { get; set; } = null;
 
 	private int amount;
 	public event Action AmountChanged;
@@ -8,7 +11,8 @@ public class Resource {
 	public int Amount {
 		get => amount;
 		set {
-			amount = value;
+			if (Maximum != null && amount == Maximum) return;
+			amount = Mathf.Min(value, Maximum ?? value );
 			AmountChanged?.Invoke();
 		}
 	}
@@ -19,7 +23,8 @@ public class Resource {
 	public int Target {
 		get => target;
 		set {
-			target = value;
+			if (Maximum != null && target == Maximum) return;
+			target = Mathf.Min(value, Maximum ?? value);
 			TargetChanged?.Invoke();
 		}
 	}

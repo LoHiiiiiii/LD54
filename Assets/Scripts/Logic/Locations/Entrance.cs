@@ -7,14 +7,10 @@ public class Entrance : MonoBehaviour
 
     [SerializeField] Location entranceLocation;
 	[SerializeField] ObjectSpawner spawner;
+	[SerializeField] ObjectVisualType type;
 
-	ObjectData data = new ObjectData();
 
-	private void Start() {
-		data.DepartureEffects.Add(ResourceType.Health, -1); 
-		data.DepartureEffects.Add(ResourceType.Gold, +1);
-		data.VisualType = ObjectVisualType.Passenger;
-		data.MaxStacks = 2;
+	private void Start() { 
 		entranceLocation.SpotChangedObject += SpawnNewObject;
 		SpawnNewObject();
 	}
@@ -25,6 +21,6 @@ public class Entrance : MonoBehaviour
 
 	private void SpawnNewObject(LocationSpot previousSpot = null, Object previousObject = null, Object newObject = null) {
 		if (newObject != null) return;
-		spawner.SpawnObject(data, entranceLocation.GetFirstFreeSpot());
+		spawner.SpawnObject(type, entranceLocation.GetFirstFreeSpot());
 	}
 }

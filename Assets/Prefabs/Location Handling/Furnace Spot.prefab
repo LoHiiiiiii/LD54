@@ -44,6 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90691e1fee243dc4dab5e5e62feedccd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hoverGlow: {fileID: 0}
+  glowTransitionDuration: 0
+  pivot: {fileID: 460232719684547718}
 --- !u!1 &4212753042758585784
 GameObject:
   m_ObjectHideFlags: 0

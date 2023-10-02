@@ -67,6 +67,7 @@ public class DragDropper : MonoBehaviour {
 				}
 				if (hoverSpot != null && hoverObject != null) {
 					hoverObject.StopHoveringOver();
+					hoverSpot.StopHovering();
 					hoverSpot = null;
 				}
 				DragObject.StopDragging();

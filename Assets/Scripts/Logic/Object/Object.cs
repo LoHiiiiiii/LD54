@@ -16,15 +16,23 @@ public class Object : MonoBehaviour {
 	bool dragging = false;
 	float speed = 0;
 	new Collider2D collider;
+	int purchasedStacks = 0;
 
 	public LocationSpot CurrentSpot { get; set; }
-	public int PurchasedStacks { get; set; } = 0;
+	public int PurchasedStacks { get => purchasedStacks; set {
+			purchasedStacks = value;
+			foreach (GameObject go in Costs) Destroy(go);
+			Costs.Clear();
+		} 
+	}
 
 	public bool Deleting { get; private set; }
 	public float RemainingDeleteRatio { get; private set; } = 1;
 	public Transform ResourceInfoSlot { get => resourceInfoSlot; }
 
 	public bool AtTarget { get; private set; }
+
+	public List<GameObject> Costs { get; } = new List<GameObject>();
 
 
 	private int stacks = 1;
@@ -50,7 +58,6 @@ public class Object : MonoBehaviour {
 		name = VisualData.name;
 		name = VisualData.name;
 		Instantiate(VisualData.spritePrefab, spriteSlot);
-		stacks = Data.MaxStacks ?? stacks;
 		StacksUpdated += HandleNoStacks;
 		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position;
 		collider = GetComponentInChildren<Collider2D>();
@@ -115,10 +122,11 @@ public class Object : MonoBehaviour {
 			AtTarget = true;
 			return;
 		}
-		speed += maxSpeed / secondsToMax * Time.deltaTime;
+		if (!AtTarget) speed += maxSpeed / secondsToMax * Time.deltaTime;
 		Vector3 target = CurrentSpot == null ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
 		transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 		AtTarget = Vector3.Distance(transform.position, target) <= Mathf.Epsilon;
+		if (AtTarget) speed = 0;
 	}
 
 	private void HandleNoStacks() {
@@ -133,6 +141,7 @@ public class Object : MonoBehaviour {
 			targetPosition = CurrentSpot.transform.position;
 		}
 		CurrentSpot = null;
+		AtTarget = false;
 		Deleting = true;
 	}
 

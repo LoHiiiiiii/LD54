@@ -12,11 +12,24 @@ public class ResourceHandler: MonoBehaviour {
 
 	public Dictionary<ResourceType, Resource> resources = new Dictionary<ResourceType, Resource>();
 
-	void Awake() {
+	public void Initialize(int initialGold, int initialHp) {
+
 		var types = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>();
 		foreach (var data in resourceCollection.resources) {
 			var resource = new Resource(data);
 			resources.Add(data.type, resource);
+			switch (data.type) {
+				case ResourceType.Gold:
+					resource.Amount = initialGold;
+					resource.Target = initialGold;
+					break;
+				case ResourceType.Health:
+					resource.Maximum = initialHp;
+					resource.Amount = initialHp; 
+					resource.Target = initialHp;
+
+					break;
+			}
 			var display = Instantiate(resourceDisplayPrefab, resourceDisplayHolder).GetComponent<ResourceDisplay>();
 			display.name = $"{data.name} Display";
 			display.SetResource(resource);
@@ -31,5 +44,9 @@ public class ResourceHandler: MonoBehaviour {
 
 	public Resource GetResource(ResourceType type) => resources[type];
 
-	public void ApplyResourceTargets() { }
+	public void ApplyResourceTargets() { 
+		foreach(var resource in resources.Values) {
+			resource.Amount = resource.Target;
+		}
+	}
 }

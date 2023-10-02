@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FlowHandler : MonoBehaviour {
 
 	[SerializeField] CanvasGroup canvas;
-	[SerializeField] OrganizationPhaseHandler organizer;
+	[SerializeField] TrainHandler train;
 	[SerializeField] RoadEventHandler roadHandler;
 	[SerializeField] ResourceHandler resourceHandler;
+	[SerializeField] ValueParser valueParser;
 	[Space]
-	[SerializeField] float transitionDuration; 
+	[SerializeField] float transitionDuration;
 	[SerializeField] float eventGap;
 
 
@@ -18,11 +20,13 @@ public class FlowHandler : MonoBehaviour {
 
 	public bool Transitioning { get; private set; }
 
-	void Start() {
+	void Awake() {
+		valueParser.InitializeValues();
 		canvas.alpha = 1;
 		NextEvent();
 	}
 
+	public void EndCurrentEvent() => StartCoroutine(EndEventRoutine());
 	void NextEvent() => StartCoroutine(NextEventRoutine());
 
 	IEnumerator NextEventRoutine() {
@@ -39,8 +43,8 @@ public class FlowHandler : MonoBehaviour {
 		alpha = 0;
 		canvas.alpha = 0;
 
-		//if (events[nextEventId]) organizer.InvokeEventStart();
-		//else roadHandler.InvokeEventStart();
+		if (events[nextEventId]) train.InvokeOrganizingPhase();
+		else roadHandler.InvokeEventPhase();
 		nextEventId++;
 	}
 
@@ -48,7 +52,7 @@ public class FlowHandler : MonoBehaviour {
 		Transitioning = true;
 		float alpha = transitionDuration <= 0 ? 1 : 0;
 		while (alpha < 1) {
-			alpha -= Time.deltaTime / transitionDuration;
+			alpha += Time.deltaTime / transitionDuration;
 			canvas.alpha = alpha;
 			yield return null;
 		}
@@ -58,12 +62,17 @@ public class FlowHandler : MonoBehaviour {
 
 		yield return new WaitForSeconds(eventGap);
 
-		if (CheckFailState()) { }
-		else NextEvent();
+		var state = CheckFailState();
+
+		if (state.fails) {
+			Debug.LogError($"Fail because of {state.type}");
+		} else NextEvent();
 	}
 
-	public bool CheckFailState() {
-		//if (resourceHandler.)
-		return false;
+	public (bool fails, ResourceType type) CheckFailState() {
+		if (resourceHandler.GetResource(ResourceType.Gold).Amount < 0) return (true, ResourceType.Gold); 
+		if (resourceHandler.GetResource(ResourceType.Health).Amount < 0) return (true, ResourceType.Health);
+		if (!train.GetAllObjects().Any() && nextEventId < events.Length && !events[nextEventId]) return (true, ResourceType.Fuel);
+		return (false, ResourceType.Fuel);
 	}
 }

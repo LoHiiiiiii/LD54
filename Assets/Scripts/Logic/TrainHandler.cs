@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class TrainHandler : MonoBehaviour {
 
+	[SerializeField] FlowHandler flowHandler;
 	[SerializeField] ResourceHandler resourceHandler;
-	[SerializeField] OrganizationPhaseHandler organization;
 	[SerializeField] DragDropper dragDropper;
 	[SerializeField] Location cart;
 	[SerializeField] Location front;
@@ -17,7 +17,6 @@ public class TrainHandler : MonoBehaviour {
 	TransformRotator[] rotators;
 
 	private void Awake() {
-		organization.OrganizationStarted += OrganizationStart;
 		cart.SpotChangedObject += HandleSpotChangeResources;
 		cart.StacksChanged += HandleStackChangeResources;
 		front.SpotChangedObject += HandleBurn;
@@ -25,14 +24,22 @@ public class TrainHandler : MonoBehaviour {
 		rotators = GetComponentsInChildren<TransformRotator>();
 	}
 
-	private void OrganizationStart() => StartCoroutine(OrganizationStartRoutine());
+	public void InvokeOrganizingPhase() => StartCoroutine(OrganizationStartRoutine());
 
 	private IEnumerator OrganizationStartRoutine() {
+		foreach (var rotator in rotators) rotator.Rotating = false;
+
 		var objects = cart.GetAllObjects();
 		var exitObjects = new List<Object>();
 		if (objects.Any()) {
 			foreach (var obj in objects) {
 				if (obj.Data.ExitEffects.Any()) exitObjects.Add(obj);
+				if (obj.PurchasedStacks < obj.Stacks) obj.PurchasedStacks = obj.Stacks;
+				if (obj.Data.DepartureEffects.Any()) {
+					foreach(var pair in  obj.Data.DepartureEffects) {
+						resourceHandler.GetResource(pair.Key).Target -= pair.Value;
+					}
+				}
 			}
 		}
 		if (exitObjects.Any()) {
@@ -82,6 +89,10 @@ public class TrainHandler : MonoBehaviour {
 		dragDropper.Active = false;
 		AddTargetResources(newObject.Data.BurnEffects, 1);
 		AddTargetResources(newObject.Data.AddEffects, 1);
+		resourceHandler.ApplyResourceTargets();
 		foreach (var rotator in rotators) rotator.Rotating = true;
+		flowHandler.EndCurrentEvent();
 	}
+
+	public List<Object> GetAllObjects() => cart.GetAllObjects();
 }

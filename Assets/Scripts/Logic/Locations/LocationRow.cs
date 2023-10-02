@@ -23,7 +23,7 @@ public class LocationRow : MonoBehaviour {
 		for (int i = 0; i < MaxSpots; ++i) {
 			var spot = Instantiate(spotPrefab, transform).GetComponent<LocationSpot>();
 			spot.transform.position = transform.position + Vector3.left * (spotWidth * (i+0.5f) + (i+1) * spotGap);
-			spot.transform.localScale = new Vector3(spotWidth, spotHeight);
+			spot.Pivot.localScale = new Vector3(spotWidth, spotHeight);
 			spot.Row = this;
 			spots[i] = spot;
 			spot.name = name + " - Spot " + (i + 1);
