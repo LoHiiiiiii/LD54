@@ -8,11 +8,11 @@ using UnityEngine;
 public class ObjectVisualCollection : ScriptableObject {
 
 	public List<ObjectVisualData> objectVisuals;
-	private bool initialized;
+	[HideInInspector] public bool initialized;
 
 #if UNITY_EDITOR
 	void Awake() {
-		if (initialized) return;
+		if (initialized || objectVisuals.Count > 0) return;
 		initialized = true;
 		objectVisuals = new List<ObjectVisualData>();
 		var types = Enum.GetValues(typeof(ObjectVisualType)).Cast<ObjectVisualType>();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ public class Location : MonoBehaviour {
 
 	LocationRow[] rows;
 
-	[SerializeField] ResourceHandler resourceHandler;
-
 	public int MaxSpots { get; private set; }
+
+	public event Action<LocationSpot, Object, Object> SpotChangedObject;
 
 	private void Awake() {
 		rows = GetComponentsInChildren<LocationRow>();
@@ -21,7 +22,7 @@ public class Location : MonoBehaviour {
 		MaxSpots = spots;
 	}
 
-	private LocationSpot GetFirstFreeSpot(Object potentialObject) {
+	public LocationSpot GetFirstFreeSpot(Object potentialObject = null) {
 		foreach(var row in rows) {
 			var result = row.GetFirstFreeSpot(potentialObject);
 			if (result != null) return result;
@@ -39,14 +40,12 @@ public class Location : MonoBehaviour {
 		return null;
 	}
 
-	public void ObjectChanged(Object previousObject, Object newObject) {
-		if (previousObject != null) { }
-		if ( newObject != null) { }
-	}
+	public void InvokeSpotChangedObject(
+		LocationSpot newObjectPreviousSpot, 
+		Object spotPreviousObject, 
+		Object newObject) => SpotChangedObject?.Invoke(newObjectPreviousSpot, spotPreviousObject, newObject);
 
-
-
-	public void StacksChanged(Object changedObject, int stackChange) {
+	public void InvokeStacksChanged(Object changedObject, int stackChange) {
 
 	}
 }

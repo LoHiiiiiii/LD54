@@ -8,11 +8,11 @@ using UnityEngine;
 public class ResourceCollection : ScriptableObject {
 
 	public List<ResourceData> resources;
-	private bool initialized;
+	[HideInInspector] public bool initialized;
 
 #if UNITY_EDITOR
 	void Awake() {
-		if (initialized) return;
+		if (initialized || resources.Count > 0) return;
 		initialized = true; 
 		resources = new List<ResourceData>();
 		var types = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>();

@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class Object : MonoBehaviour {
 
-	[SerializeField] new SpriteRenderer renderer;
+	[SerializeField] Transform spriteSlot;
+	[SerializeField] float maxSpeed;
+	[SerializeField] float acceleration;
 
 	Vector3 targetPosition;
 	bool valid = true;
 	bool dragging = false;
+	float speed = 0;
 
 	public LocationSpot CurrentSpot { get; set; }
 
@@ -34,7 +37,14 @@ public class Object : MonoBehaviour {
 
 	private void Start() {
 		name = VisualData.name;
-		renderer.sprite = VisualData.sprite;
+		Instantiate(VisualData.spritePrefab, spriteSlot);
+		stacks = Data.MaxStacks ?? stacks;
+		StacksUpdated += HandleNoStacks;
+		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position;
+	}
+
+	private void Destroy() {
+		StacksUpdated -= HandleNoStacks;
 	}
 
 	public void StartHover() { HoverChanged?.Invoke(true); }
@@ -79,6 +89,22 @@ public class Object : MonoBehaviour {
 	}
 
 	private void MoveTowardsTarget() {
-		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
+		if (dragging) {
+			transform.position = targetPosition;
+			speed = 0;
+			return;
+		}
+		speed += acceleration * Time.deltaTime;
+		Vector3 target = CurrentSpot == null ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
+		transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+	}
+
+	public void HandleNoStacks() {
+		if (Stacks <= 0) Delete(DeleteType.Stacked);
+	}
+
+	public void Delete(DeleteType deleteType = DeleteType.None) {
+		if (CurrentSpot != null) CurrentSpot.ClearSpot();
+		Destroy(gameObject);
 	}
 }

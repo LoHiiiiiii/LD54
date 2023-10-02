@@ -51,11 +51,13 @@ public class DragDropper : MonoBehaviour {
 			DragObject.SetDragPosition(point);
 			if (hoverSpot != null && s != hoverSpot) {
 				DragObject.StopHoveringOver();
+				hoverSpot.StopHovering();
 				hoverSpot = null;
 			}
 
 			if (hoverSpot == null && s != null) {
 				DragObject.StartHoveringOver(s);
+				s.StartHovering();
 				hoverSpot = s;
 			}
 

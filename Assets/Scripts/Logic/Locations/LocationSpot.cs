@@ -9,33 +9,26 @@ public class LocationSpot : MonoBehaviour {
     public LocationRow Row { get; set; }
 
 	public bool TryAddObject(Object o) {
-        if (CurrentObject == o) return true;
+        if (CurrentObject == o) return false;
         if (!o.FitsSpot(this)) return false;
         var previous = CurrentObject;
+        var previousSpot = o.CurrentSpot;
         if (CurrentObject != null) {
             var stackIncrease = (CurrentObject.Data.MaxStacks == null) ? o.Stacks
                 : Mathf.Min((int)CurrentObject.Data.MaxStacks - CurrentObject.Stacks, o.Stacks);
 
             if (stackIncrease <= 0) return false;
             CurrentObject.Stacks += stackIncrease;
+            if (previousSpot != null) { o.CurrentSpot.Row.StacksChanged(o, -stackIncrease); }
             o.Stacks -= stackIncrease;
-            if (o.CurrentSpot != null) {
-                o.CurrentSpot.Row.StacksChanged(o, -stackIncrease);
-                if (o.Stacks == 0) {
-                    o.CurrentSpot.ClearSpot();
-                    Destroy(o);
-                }
-            }
             Row.StacksChanged(CurrentObject, stackIncrease);
             return true;
         } else {
-            if (o.CurrentSpot != null) {
-                o.CurrentSpot.ClearSpot();
-            }
-            o.CurrentSpot = this;
-            CurrentObject = o;
+			o.CurrentSpot = this;
+			CurrentObject = o;
+			if (previousSpot != null) { previousSpot.ClearSpot(); }
         }
-        Row.ObjectChanged(previous, CurrentObject);
+        Row.ObjectChanged(previousSpot, previous, CurrentObject);
         return true;
     }
 
@@ -43,6 +36,14 @@ public class LocationSpot : MonoBehaviour {
         if (CurrentObject == null) return;
         var previous = CurrentObject;
         CurrentObject = null;
-        Row.ObjectChanged(previous, null);
+        Row.ObjectChanged(this, previous, null);
+    }
+
+    public void StartHovering() {
+
+    }
+
+    public void StopHovering() {
+
     }
 }

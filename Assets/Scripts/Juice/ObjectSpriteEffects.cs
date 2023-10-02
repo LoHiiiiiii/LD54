@@ -1,10 +1,10 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.Rendering;
 
 public class ObjectSpriteEffects : MonoBehaviour {
-	[SerializeField] Object affectedObject;
 	[SerializeField] float selectedScale;
 	[SerializeField] float hoverScaleRatio;
 	[SerializeField] Color invalidColor;
@@ -16,18 +16,28 @@ public class ObjectSpriteEffects : MonoBehaviour {
 	bool valid = true;
 	bool selected = false;
 	bool hover = false;
-	Color startColor;
-	new SpriteRenderer renderer;
-	int startOrder;
+	Color[] startColors;
+	SpriteRenderer[] renderers;
+	SortingGroup sortingGroup;
+	Canvas[] canvasLayers;
+	string startingLayer; 
+	Object affectedObject;
+
+	private const string canvasLayer = "UI";
+	private const string selectedLayer = "Selected";
+	private const string selectedCanvasLayer = "SelectedUI";
 
 	private void Start() {
+		affectedObject = GetComponentInParent<Object>();
 		affectedObject.SelectedChanged += HandleSelected;
 		affectedObject.ValidChanged += HandleValid;
 		affectedObject.HoverChanged += HandleHover;
 		startScale = transform.localScale;
-		renderer = GetComponent<SpriteRenderer>();
-		startColor = renderer.color;
-		startOrder = renderer.sortingOrder;
+		renderers = GetComponentsInChildren<SpriteRenderer>();
+		sortingGroup = GetComponentInChildren<SortingGroup>();
+		startColors = renderers.Select(r => r.color).ToArray();
+		startingLayer = sortingGroup.sortingLayerName;
+		canvasLayers = GetComponentsInChildren<Canvas>();
 	}
 
 	private void OnDestroy() {
@@ -37,7 +47,10 @@ public class ObjectSpriteEffects : MonoBehaviour {
 
 	private void HandleSelected(bool selected) {
 		this.selected = selected;
-		renderer.sortingOrder = selected ? 2 : startOrder;
+		sortingGroup.sortingLayerName = selected ? selectedLayer : startingLayer;
+		foreach(var canvas in  canvasLayers) {
+			canvas.sortingLayerName = selected ? selectedCanvasLayer : canvasLayer;
+		}
 	}
 
 	private void HandleHover(bool hover) => this.hover = hover;
@@ -48,6 +61,8 @@ public class ObjectSpriteEffects : MonoBehaviour {
 		scaleLerp = selected || hover ? Mathf.Clamp(scaleLerp + 1f / duration * Time.deltaTime, 0, selected ? 1 : hoverScaleRatio) : Mathf.Clamp01(scaleLerp - 1f / duration * Time.deltaTime);
 		transform.localScale = Vector3.Lerp(startScale, startScale * selectedScale, scaleLerp);
 		colorLerp = valid ? Mathf.Clamp01(colorLerp - 1f / duration * Time.deltaTime) : Mathf.Clamp01(colorLerp + 1f / duration * Time.deltaTime);
-		renderer.color = Color.Lerp(startColor, invalidColor, colorLerp);
+		for (int i = 0; i < renderers.Length; ++i) {
+			renderers[i].color = Color.Lerp(startColors[i], invalidColor, colorLerp);
+		}
 	}
 }

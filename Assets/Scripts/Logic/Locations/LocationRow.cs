@@ -20,7 +20,8 @@ public class LocationRow : MonoBehaviour {
 		this.spots = new LocationSpot[maxSpots];
 		for (int i = 0; i < MaxSpots; ++i) {
 			var spot = Instantiate(spotPrefab, transform).GetComponent<LocationSpot>();
-			spot.transform.position = transform.position + Vector3.left * (spotWidth * i + (Mathf.Max(0, i) * spotGap));
+			spot.transform.position = transform.position + Vector3.left * (spotWidth * (i+0.5f) + (i+1) * spotGap);
+			spot.transform.localScale = Vector3.one * spotWidth;
 			spot.Row = this;
 			spots[i] = spot;
 			spot.name = name + " - Spot " + (i + 1);
@@ -45,12 +46,12 @@ public class LocationRow : MonoBehaviour {
 		return GetFirstFreeSpot(potentialObject, randomSpots);
 	}
 
-	public void ObjectChanged(Object previousObject, Object newObject) {
-		if (previousObject != null && !spots.Contains(previousObject.CurrentSpot)) previousObject = null;
-		if (newObject != null && spots.Contains(newObject.CurrentSpot)) newObject = null;
-		if (previousObject == newObject) return;
-		Location.ObjectChanged(previousObject, newObject);
+	public void ObjectChanged(LocationSpot newObjectPreviousSpot, Object spotPreviousObject, Object newObject) {
+		if (newObject == null && spotPreviousObject != null && spots.Contains(spotPreviousObject.CurrentSpot)) spotPreviousObject = null;
+		if (spotPreviousObject == null && spots.Contains(newObjectPreviousSpot)) newObject = null;
+		if (spotPreviousObject == newObject) return;
+		Location.InvokeSpotChangedObject(newObjectPreviousSpot, spotPreviousObject, newObject);
 	}
 
-	public void StacksChanged(Object increaseObject, int stackChange) => Location.StacksChanged(increaseObject, stackChange);
+	public void StacksChanged(Object increaseObject, int stackChange) => Location.InvokeStacksChanged(increaseObject, stackChange);
 }

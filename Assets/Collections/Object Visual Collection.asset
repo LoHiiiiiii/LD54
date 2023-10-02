@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Object Visual Collection
   m_EditorClassIdentifier: 
   objectVisuals:
-  - name: Box
+  - name: Coal Box
     type: 0
-    sprite: {fileID: 21300000, guid: c20844cbeae10aa4e99203ec288dc6fa, type: 3}
+    spritePrefab: {fileID: 1257938489182993282, guid: 9e015d133f905974f85523d228294f49, type: 3}
   - name: Passenger
     type: 1
-    sprite: {fileID: 21300000, guid: 3bab0ddc5dc50684bb33dc99f3b8aef2, type: 3}
+    spritePrefab: {fileID: 1257938489182993282, guid: ded91d0a13fc7b24b918c718f0794e83, type: 3}
   - name: Guard
     type: 2
-    sprite: {fileID: 21300000, guid: 0748afdfae8f17e4ab559ff4173892e2, type: 3}
+    spritePrefab: {fileID: 1257938489182993282, guid: 463d44f7384f6654ab4cd177e46f9a85, type: 3}
+  initialized: 1

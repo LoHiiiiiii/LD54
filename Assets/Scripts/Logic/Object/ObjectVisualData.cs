@@ -4,5 +4,5 @@ using UnityEngine;
 public class ObjectVisualData {
 	public string name;
 	public ObjectVisualType type;
-	public Sprite sprite;
+	public GameObject spritePrefab;
 }
