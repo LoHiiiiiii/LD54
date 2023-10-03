@@ -45,19 +45,20 @@ public class ObjectSpawner : MonoBehaviour {
 		}
 	}
 
-	public Object SpawnObject(ObjectVisualType visualType, LocationSpot spot, int stacks = 1) {
+	public Object SpawnObject(ObjectVisualType visualType, LocationSpot spot, bool purchased = false) {
 		var data = objectData[visualType];
-		if (!Object.FitsSpot(spot, data, stacks)) return null;
+		if (!Object.FitsSpot(spot, data, 1)) return null;
 		var newObject = Instantiate(objectPrefab, spot.transform).GetComponent<Object>();
 		newObject.name = visualData[data.VisualType].name;
 		newObject.Data = data;
 		newObject.VisualData = visualData[data.VisualType];
+		if (purchased) newObject.PurchasedStacks = newObject.Stacks;
 		if (!spot.TryAddObject(newObject)) { Destroy(newObject.gameObject); }
 		AddDataInfo(newObject);
 		return newObject;
 	}
 
-	private void AddDataInfo(Object infoObject) {
+	public void AddDataInfo(Object infoObject) {
 		AddInfo(infoObject.Data.Stats, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Default);
 		AddInfo(infoObject.Data.ExitEffects, infoObject, (int i) => DataDisplayType.Default,"", "on next station");
 		AddInfo(infoObject.Data.DepartureEffects, infoObject, (int i) => i < 0 ? DataDisplayType.Decrease : DataDisplayType.Increase,"", "per stop");
@@ -72,8 +73,7 @@ public class ObjectSpawner : MonoBehaviour {
 			if (value == 0) continue;
 			var icon = resourceHandler.GetTypeIcon(resourceType);
 			var displayInfo = Instantiate(infoPrefab, obj.ResourceInfoSlot).GetComponent<ObjectDataDisplay>();
-			displayInfo.SetUp(GetDisplayType(value), $"{pretext}{(value < 0 || cost ? "" : "+")}{(cost ? -value : value)}", icon, secondary);
-			if (cost) obj.Costs.Add(displayInfo.gameObject);
+			displayInfo.SetUp(obj, GetDisplayType(value), $"{pretext}{(value < 0 || cost ? "" : "+")}", (cost ? -value : value), icon, secondary, cost);
 		}
 
 	}

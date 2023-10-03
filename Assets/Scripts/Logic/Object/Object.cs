@@ -16,29 +16,21 @@ public class Object : MonoBehaviour {
 	bool dragging = false;
 	float speed = 0;
 	new Collider2D collider;
-	int purchasedStacks = 0;
 	private LocationSpot currentSpot;
 
-	public LocationSpot CurrentSpot { get => currentSpot; set {
+	public LocationSpot CurrentSpot {
+		get => currentSpot; set {
 			currentSpot = value;
 			transform.SetParent(currentSpot?.transform, true);
 		}
 	}
-	public int PurchasedStacks { get => purchasedStacks; set {
-			purchasedStacks = value;
-			foreach (GameObject go in Costs) Destroy(go);
-			Costs.Clear();
-		} 
-	}
+	public int PurchasedStacks { get; set; }
 
 	public bool Deleting { get; private set; }
 	public bool Exiting { get; set; }
 	public float RemainingDeleteRatio { get; private set; } = 1;
 	public Transform ResourceInfoSlot { get => resourceInfoSlot; }
-
 	public bool AtTarget { get; private set; }
-
-	public List<GameObject> Costs { get; } = new List<GameObject>();
 
 
 	private int stacks = 1;
@@ -59,10 +51,13 @@ public class Object : MonoBehaviour {
 	public event Action<bool> ValidChanged;
 	public event Action StacksUpdated;
 
+	private void Awake() {
+		StacksUpdated += HandleNoStacks;
+	}
+
 	private void Start() {
 		name = VisualData.name;
 		Instantiate(VisualData.spritePrefab, spriteSlot);
-		StacksUpdated += HandleNoStacks;
 		transform.position = (dragging || CurrentSpot == null) ? targetPosition : CurrentSpot.transform.position;
 		collider = GetComponentInChildren<Collider2D>();
 	}
@@ -127,7 +122,8 @@ public class Object : MonoBehaviour {
 			return;
 		}
 		if (!AtTarget) speed += maxSpeed / secondsToMax * Time.deltaTime;
-		Vector3 target = CurrentSpot == null ? targetPosition : CurrentSpot.transform.position; //TODO: Juice
+		speed = Mathf.Clamp(speed, 0, maxSpeed);
+		Vector3 target = CurrentSpot == null ? targetPosition : CurrentSpot.transform.position;
 		transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 		AtTarget = Vector3.Distance(transform.position, target) <= Mathf.Epsilon;
 		if (AtTarget) speed = 0;
@@ -139,7 +135,7 @@ public class Object : MonoBehaviour {
 
 	public void Delete(DeleteType deleteType = DeleteType.None) {
 		if (Deleting) return;
-		collider.enabled = false;
+		if (collider != null) collider.enabled = false;
 		if (CurrentSpot != null) {
 			CurrentSpot.ClearSpot();
 			targetPosition = CurrentSpot.transform.position;

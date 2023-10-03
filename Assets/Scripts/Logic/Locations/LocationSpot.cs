@@ -42,10 +42,12 @@ public class LocationSpot : MonoBehaviour {
 				: Mathf.Min((int)CurrentObject.Data.MaxStacks - CurrentObject.Stacks, o.Stacks);
 
 			if (stackIncrease <= 0) return false;
+			CurrentObject.PurchasedStacks += Mathf.Min(stackIncrease, o.PurchasedStacks);
 			CurrentObject.Stacks += stackIncrease;
-			if (previousSpot != null) { o.CurrentSpot.Row.StacksChanged(o, -stackIncrease); }
+			o.PurchasedStacks -= Mathf.Min(stackIncrease, o.PurchasedStacks);
 			o.Stacks -= stackIncrease;
-			Row.StacksChanged(CurrentObject, stackIncrease);
+			if ( previousSpot != null && previousSpot.Row.Location != Row.Location) previousSpot.Row.StacksChanged(o, -stackIncrease);
+			if (previousSpot == null || previousSpot.Row.Location != Row.Location) Row.StacksChanged(CurrentObject, stackIncrease);
 			return false;
 		} else {
 			o.CurrentSpot = this;

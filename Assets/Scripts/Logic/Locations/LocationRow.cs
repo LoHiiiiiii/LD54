@@ -59,7 +59,6 @@ public class LocationRow : MonoBehaviour {
 	public void ObjectChanged(LocationSpot newObjectPreviousSpot, Object spotPreviousObject, Object newObject) {
 		if (newObject == null && spotPreviousObject != null && spots.Contains(spotPreviousObject.CurrentSpot)) spotPreviousObject = null;
 		if (spotPreviousObject == null && spots.Contains(newObjectPreviousSpot)) newObject = null;
-		if (spotPreviousObject == newObject) return;
 		Location.InvokeSpotChangedObject(newObjectPreviousSpot, spotPreviousObject, newObject);
 	}
 

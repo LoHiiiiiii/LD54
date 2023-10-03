@@ -24,14 +24,14 @@ public class TrainHandler : MonoBehaviour {
 
 	private void Awake() {
 		rotators = GetComponentsInChildren<TransformRotator>();
+		cart.SpotChangedObject += HandleSpotChangeResources;
+		cart.StacksChanged += HandleStackChangeResources;
+		front.SpotChangedObject += HandleBurn;
 	}
 
 	private void Start() {
 		started = true;
 		StartCallback?.Invoke();
-		cart.SpotChangedObject += HandleSpotChangeResources;
-		cart.StacksChanged += HandleStackChangeResources;
-		front.SpotChangedObject += HandleBurn;
 	}
 
 	public void InvokeOrganizingPhase(bool abyss = false) => StartCoroutine(OrganizationStartRoutine(abyss));
@@ -83,10 +83,16 @@ public class TrainHandler : MonoBehaviour {
 	}
 
 	private void HandleStackChangeResources(Object obj, int stackChange) {
+
 		if (obj == null || stackChange == 0) return;
 		ChangeTargetResources(obj.Data.DepartureEffects, stackChange);
 		ChangeTargetResources(obj.Data.Stats, stackChange);
-		ChangeTargetResources(obj.Data.AddEffects, obj.Stacks);
+		if (stackChange > 0) {
+			var change = Mathf.Min(stackChange, obj.Stacks - obj.PurchasedStacks);
+			ChangeTargetResources(obj.Data.AddEffects, change);
+		} else {
+			ChangeTargetResources(obj.Data.AddEffects, Mathf.Max(0, obj.PurchasedStacks + stackChange));
+		}
 	}
 
 	private void AddTargetResources(Dictionary<ResourceType, int> effects, int stacks) => ChangeTargetResources(effects, stacks);
@@ -117,21 +123,19 @@ public class TrainHandler : MonoBehaviour {
 			for (int i = 0; i < initialPassengers; i++) {
 				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Passenger));
 				if (spot == null) break;
-				spawner.SpawnObject(ObjectVisualType.Passenger, spot);
-				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+				spawner.SpawnObject(ObjectVisualType.Passenger, spot, true);
 			}
 			for (int i = 0; i < initialBrawlers; i++) {
 				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Guard));
 				if (spot == null) break;
-				spawner.SpawnObject(ObjectVisualType.Guard, spot);
-				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+				spawner.SpawnObject(ObjectVisualType.Guard, spot, true);
 			}
 			for (int i = 0; i < initialFuel; i++) {
 				var spot = cart.GetFirstFreeSpot(spawner.GetData(ObjectVisualType.Box));
 				if (spot == null) break;
-				spawner.SpawnObject(ObjectVisualType.Box, spot);
-				spot.CurrentObject.PurchasedStacks = spot.CurrentObject.Stacks;
+				spawner.SpawnObject(ObjectVisualType.Box, spot, true);
 			}
+			resourceHandler.ApplyResourceTargets();
 		};
 
 		if (started) StartCallback();

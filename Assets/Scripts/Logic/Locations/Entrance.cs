@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entrance : MonoBehaviour
-{
+public class Entrance : MonoBehaviour {
 
-    [SerializeField] Location entranceLocation;
+	[SerializeField] Location entranceLocation;
 	[SerializeField] ObjectSpawner spawner;
 	[SerializeField] ObjectVisualType type;
 
 
-	private void Start() { 
+	private void Start() {
 		entranceLocation.SpotChangedObject += SpawnNewObject;
 		SpawnNewObject();
 	}

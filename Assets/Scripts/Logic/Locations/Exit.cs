@@ -19,7 +19,8 @@ public class Exit : MonoBehaviour
 		if (newObject == null) return;
 		if (newObject.Stacks == 1) {
 			newObject.Delete(newObject.Exiting ? DeleteType.Exit : DeleteType.Fired);
-		} else {
+		} else {			
+			newObject.PurchasedStacks = Mathf.Min(newObject.PurchasedStacks, newObject.Stacks - 1);
 			newObject.Stacks--;
 			if (!previousSpot.TryAddObject(newObject)) {
 				newObject.Delete(DeleteType.Destroy);

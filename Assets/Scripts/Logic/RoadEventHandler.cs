@@ -20,7 +20,7 @@ public class RoadEventHandler : MonoBehaviour {
 	[SerializeField] TMP_Text title;
 	[SerializeField] TMP_Text description;
 
-	Dictionary<int, HashSet<RoadEventData>> pools;
+	Dictionary<int, Dictionary<RoadEventData, int>> pools;
 
 	bool fading = false;
 	RoadEventData currentEvent;
@@ -64,7 +64,11 @@ public class RoadEventHandler : MonoBehaviour {
 		}
 		group.alpha = 0;
 
+		Debug.Log($"{currentEvent.Choices[index].ChoiceDescription} - {currentEvent.Choices[index].ChoiceEffects.Count}");
+
 		foreach (var effect in currentEvent.Choices[index].ChoiceEffects) {
+			Debug.Log($"{effect.ChoiceType} - {effect.ChoiceValue}");
+
 			if (effect.ChoiceType == ChoiceType.Object) {
 				bool remove = effect.ChoiceValue < 0;
 				if (remove) {
@@ -77,6 +81,7 @@ public class RoadEventHandler : MonoBehaviour {
 							if (kills >= Mathf.Abs(effect.ChoiceValue)) break;
 						}
 					}
+					
 				} else {
 					for (int i = 0; i < effect.ChoiceValue; ++i) {
 						spawner.SpawnObject(effect.ObjectVisualType, train.GetFirstFreeSpot(spawner.GetData(effect.ObjectVisualType)));
@@ -88,8 +93,8 @@ public class RoadEventHandler : MonoBehaviour {
 				bool victory = false;
 				foreach (var obj in train.GetAllObjects()) {
 					if (obj.Data.VisualType != ObjectVisualType.Guard) continue;
-					if (Random.value > 0.5) { victory = true; break; }
-					obj.Delete();
+					if (Random.value > 0.66f) { victory = true; break; }
+					obj.Delete(DeleteType.Destroy);
 					AudioMaster.Instance.Play(EffectMaster.Instance.burnSFX);
 					yield return new WaitForSeconds(2f);
 
@@ -116,11 +121,23 @@ public class RoadEventHandler : MonoBehaviour {
 		var objectCount = 0;
 		foreach (var effect in currentEvent.Choices[index].ChoiceEffects) {
 			if (effect.ChoiceType == ChoiceType.Object) {
-				if (train.GetAllObjects().Where(o => o.Data.VisualType == effect.ObjectVisualType).Count() < effect.ChoiceValue) {
-					valid = false;
-					break;
+				var max = spawner.GetData(effect.ObjectVisualType).MaxStacks;
+				var sum = train.GetAllObjects().Where(o => o.Data.VisualType == effect.ObjectVisualType).Select(o => o.Stacks).Sum();
+				var change = Mathf.FloorToInt((sum + effect.ChoiceValue)/(float)max) - sum;
+
+				if (effect.ChoiceValue < 0) {
+					if (sum < Mathf.Abs(effect.ChoiceValue)) {
+						valid = false;
+						break;
+					}
+					objectCount -= change;
+				} else if (effect.ChoiceValue > 0) {
+					if (train.TotalSpots - train.GetAllObjects().Count() < change) {
+						valid = false;
+						break;
+					}
+					objectCount += change;
 				}
-				objectCount += Mathf.CeilToInt(effect.ChoiceValue / (float)spawner.GetData(effect.ObjectVisualType).MaxStacks);
 			} else if (effect.ChoiceType == ChoiceType.Resource) {
 				if (resourceHandler.GetResource(effect.ResourceType).Target + effect.ChoiceValue < 0) {
 					valid = false;
@@ -132,14 +149,21 @@ public class RoadEventHandler : MonoBehaviour {
 		return valid;
 	}
 
-	public void AddPools(Dictionary<int, HashSet<RoadEventData>> pools) => this.pools = pools;
+	public void AddPools(Dictionary<int, Dictionary<RoadEventData, int>> pools) => this.pools = pools;
 
 	public RoadEventData GetRandomEvent(int pool) {
 		if (!pools.ContainsKey(pool)) return null;
 		if (!pools[pool].Any()) return null;
-		var list = pools[pool].ToList();
-		list.Shuffle();
-		pools[pool].Remove(list[0]);
-		return list[0];
+		var total = pools[pool].Values.Sum();
+		var value = Random.Range(0f, total);
+		var check = 0f;
+		foreach (var roadEvent in pools[pool].Keys) {
+			check += pools[pool][roadEvent];
+			if (value <= check) {
+				pools[pool].Remove(roadEvent);
+				return roadEvent;
+			}
+		}
+		return null;
 	}
 }

@@ -25,6 +25,7 @@ public class FlowHandler : MonoBehaviour {
 	public bool Transitioning { get; private set; }
 
 	void Start() {
+		AudioMaster.Instance.Play(EffectMaster.Instance.stationMusic);
 		valueParser.Initialize();
 		canvas.alpha = 1;
 		StartCoroutine(FadeInRoutine(null));
@@ -34,14 +35,17 @@ public class FlowHandler : MonoBehaviour {
 	void NextEvent() {
 		var state = CheckFailState();
 		if (state.fails) {
-			StartCoroutine(FadeInRoutine(() => GameOver(state.type)));
+		StartCoroutine(FadeOutRoutine(() => GameOver(state.type)));
 			return;
 		}
 		PrepNextEvent();
 		StartCoroutine(FadeInRoutine(StartNextEvent));
 	}
 
+	bool started;
 	public void StartGame() {
+		if (started) return;
+		started = true;
 		StartCoroutine(FadeOutRoutine(() => {
 			menus.SetActive(false);
 			train.gameObject.SetActive(true);
@@ -56,9 +60,9 @@ public class FlowHandler : MonoBehaviour {
 	}
 
 	IEnumerator FadeInRoutine(Action Callback) {
-		if (events.Length <= nextEventId) yield break;
 		Transitioning = true;
 		float alpha = transitionDuration <= 0 ? 0 : canvas.alpha;
+		if (events.Length <= nextEventId) yield break;
 		while (alpha > 0) {
 			alpha -= Time.deltaTime / transitionDuration;
 			canvas.alpha = alpha;
@@ -71,7 +75,6 @@ public class FlowHandler : MonoBehaviour {
 		Callback?.Invoke();
 	}
 	private void PrepNextEvent() {
-
 		if (events[nextEventId] == 0) {
 			orgHolder.SetActive(true);
 			roadHandler.gameObject.SetActive(false);
