@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class AudioMaster : MonoBehaviour {
 
@@ -17,7 +18,7 @@ public class AudioMaster : MonoBehaviour {
 		}
 	}
 
-	public AudioSource Play(SoundHolder holder, Transform follow = null, bool stopOnFollowNull = true) {
+	public AudioSource Play(SoundHolder holder, float fadeInDuration = 0, Transform follow = null, bool stopOnFollowNull = true) {
 		if  (holder == null) {
 			Debug.Log("No holder");
 			return null;
@@ -39,25 +40,39 @@ public class AudioMaster : MonoBehaviour {
 		}
 		AudioSource audioSource = new GameObject("Sound - " + clip.name).AddComponent<AudioSource>();
 		audioSource.clip = clip;
+		audioSource.transform.SetParent(transform);
 		audioSource.outputAudioMixerGroup = holder.mixerGroup;
 		audioSource.loop = holder.loop;
 		audioSource.volume = Random.Range(holder.minVolume, holder.maxVolume);
 		audioSource.pitch = Random.Range(holder.minPitch, holder.maxPitch);
 		audioSource.Play();
-		playingAudios.Add(audioSource, StartCoroutine(SoundRoutine(audioSource, follow, stopOnFollowNull)));
+		playingAudios.Add(audioSource, StartCoroutine(SoundRoutine(audioSource, fadeInDuration, follow, stopOnFollowNull)));
 		return audioSource;
 	}
 
-	public void Stop(AudioSource audioSource) {
+	public void Stop(AudioSource source) {
+		_ = Stop(source, 0);
+	}
+
+	public async Task Stop(AudioSource audioSource, float duration) {
 		if (!playingAudios.ContainsKey(audioSource)) return;
+		float a = 1;
+		float volume = audioSource.volume;
+		while (a > 0) {
+			a -= Time.deltaTime / duration;
+			audioSource.volume = volume * a;
+			await Awaiters.NextFrame;
+		}
 		audioSource.Stop();
 		StopCoroutine(playingAudios[audioSource]);
 		playingAudios.Remove(audioSource);
 		Destroy(audioSource.gameObject);
 	}
 
-	IEnumerator SoundRoutine(AudioSource audioSource, Transform target, bool stopOnFollowNull) {
+	IEnumerator SoundRoutine(AudioSource audioSource, float fadeInDuration, Transform target, bool stopOnFollowNull) {
 		bool follow = target != null;
+		float targetVolume = audioSource.volume;
+		audioSource.volume = fadeInDuration > 0 ? 0 : targetVolume;
 		while (audioSource.isPlaying) {
 			if (follow) {
 				if (target == null) {
@@ -69,6 +84,10 @@ public class AudioMaster : MonoBehaviour {
 				else 
 				 audioSource.transform.position = target.position;
 			}
+			if (audioSource.volume < targetVolume) {
+				audioSource.volume = Mathf.MoveTowards(audioSource.volume, targetVolume, targetVolume/fadeInDuration * Time.deltaTime);
+			}
+			
 			yield return null;
 
 		}

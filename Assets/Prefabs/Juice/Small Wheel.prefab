@@ -95,6 +95,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aeb48cb74ccf7a4eaed0f44659bf350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRPS: 4.5
-  secondsToMax: 2
-  rotating: 0
+  size: 0.6

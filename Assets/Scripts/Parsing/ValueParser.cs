@@ -6,18 +6,18 @@ using UnityEngine;
 public class ValueParser : MonoBehaviour {
 	[SerializeField] TextAsset valueText;
 	[SerializeField] TextAsset eventText;
+	[SerializeField] TextAsset progressText;
 	[Space]
 	[SerializeField] ObjectSpawner spawner;
 	[SerializeField] ResourceHandler resourceHandler;
-	[SerializeField] FlowHandler flowHandler;
-	[SerializeField] TrainHandler train;
+	[SerializeField] OrganizationEventHandler organizationHandler;
 	[SerializeField] Repairer repairer;
-	[SerializeField] RoadEventHandler roadEventHandler;
+	[SerializeField] GameEventContainer gameEventContainer;
 
 
 	public void Initialize() {
 		InitializeValues();
-		InitializeEvents();
+		InitializeRandomEvents();
 		InitializeProgression();
 	}
 
@@ -40,7 +40,7 @@ public class ValueParser : MonoBehaviour {
 			initialGold: values["InitialGold"],
 			initialHp: values["InitialHp"]
 		);
-		train.Initialize(
+		organizationHandler.Initialize(
 			spawner: spawner,
 			initialPassengers: values["InitialPassengers"],
 			initialBrawlers: values["InitialBrawlers"],
@@ -50,17 +50,17 @@ public class ValueParser : MonoBehaviour {
 		repairer.Initialize(repairPerHpPrice: values["RepairPerHpPrice"]);
 	}
 
-	public void InitializeEvents() {
+	public void InitializeRandomEvents() {
 		var rawValues = Regex.Split(eventText.text, "\n|\r|\r\n");
 		var filteredValues = rawValues
 			.Where(s => !string.IsNullOrWhiteSpace(s) && !string.IsNullOrEmpty(s))
 			.Select(s => Regex.Split(s, ";"))
 			.ToArray();
 
-		var pools = new Dictionary<int, Dictionary<RoadEventData, int>>();
+		var pools = new Dictionary<int, Dictionary<ChoiceEvent, int>>();
 		for (int i = 1; i < filteredValues.Length; ++i) {
 			if (string.IsNullOrEmpty(filteredValues[i][3])) continue;
-			var roadEvent = new RoadEventData();
+			var roadEvent = new ChoiceEvent();
 
 			roadEvent.Title = filteredValues[i][1];
 			roadEvent.Description = filteredValues[i][2];
@@ -68,11 +68,15 @@ public class ValueParser : MonoBehaviour {
 			roadEvent.Choices.AddRange(GetChoices(filteredValues[i], 5));
 			var pool = int.Parse(filteredValues[i][3]);
 			var weight = int.Parse(filteredValues[i][4]);
+			roadEvent.CountedEvent = true;
+			roadEvent.ViewIndex = 0;
+			roadEvent.View = View.Abyss;
+			roadEvent.NewView = true;
 
-			if (!pools.ContainsKey(pool)) { pools.Add(pool, new Dictionary<RoadEventData, int>()); }
+			if (!pools.ContainsKey(pool)) { pools.Add(pool, new Dictionary<ChoiceEvent, int>()); }
 			pools[pool].Add(roadEvent, weight);
 		}
-		roadEventHandler.AddPools(pools);
+		gameEventContainer.SetEventPools(pools);
 	}
 
 	public List<Choice> GetChoices(string[] values, int startIndex) {
@@ -131,5 +135,48 @@ public class ValueParser : MonoBehaviour {
 	}
 
 	public void InitializeProgression() {
+		var rawValues = Regex.Split(progressText.text, "\n|\r|\r\n");
+		var filteredValues = rawValues
+			.Where(s => !string.IsNullOrWhiteSpace(s) && !string.IsNullOrEmpty(s))
+			.Select(s => Regex.Split(s, ";"))
+			.ToArray();
+		View? previous = null;
+		var orgEvents = new Dictionary<int, GameEvent>();
+		var order = new List<(GameEventType eventType, int index)>();
+		for(int i = 1; i < filteredValues.Length; i++) {
+			var value = filteredValues[i];
+			var gameEvent = new GameEvent();
+			if (string.IsNullOrEmpty(value[0])) {
+				gameEvent.View = (View)previous;
+				gameEvent.NewView = false;
+			} else {
+				gameEvent.NewView = true;
+				var parsed = int.Parse(value[0]);
+				if (parsed == 0) gameEvent.View = View.Abyss;
+				else gameEvent.View = View.Station;
+				gameEvent.ViewIndex = parsed;
+				previous = gameEvent.View;
+			}
+
+			if (!string.IsNullOrEmpty(value[1])) {
+				gameEvent.Type = GameEventType.Organization;
+				if (!orgEvents.ContainsKey(gameEvent.ViewIndex))
+					orgEvents.Add(gameEvent.ViewIndex, gameEvent);
+				order.Add((gameEvent.Type, gameEvent.ViewIndex));
+			} else if (!string.IsNullOrEmpty(value[2])) {
+				continue;
+			} else if (!string.IsNullOrEmpty(value[3])){
+				int parsed = int.Parse(value[3]);
+				gameEvent.Type = GameEventType.Random;
+				order.Add((gameEvent.Type, parsed));
+			}
+
+		}
+		var orgArray = new GameEvent[orgEvents.Count];
+		for (int i = 0; i < orgArray.Length; ++i) {
+			orgArray[i] = orgEvents.ContainsKey(i) ? orgEvents[i] : null;
+		}
+		gameEventContainer.SetOrganizationEvents(orgArray);
+		gameEventContainer.SetEventOrder(order.ToArray());
 	}
 }

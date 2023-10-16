@@ -8,7 +8,9 @@ public class quitGame : MonoBehaviour
 
     public void doExitGame()
     {
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
+#endif
         Application.Quit();
 
         

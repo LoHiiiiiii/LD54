@@ -1,0 +1,1 @@
+public enum VictoryType { BadEnd, GoodEnd, TrueEnd };

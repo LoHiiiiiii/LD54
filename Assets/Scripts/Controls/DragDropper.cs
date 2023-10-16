@@ -8,7 +8,7 @@ public class DragDropper : MonoBehaviour {
 	new private Camera camera;
 
 	public Object DragObject { get; private set; }
-	public bool Active { get; set; } = true;
+	public bool Active { get; set; }
 
 	private Object hoverObject;
 	private LocationSpot hoverSpot;

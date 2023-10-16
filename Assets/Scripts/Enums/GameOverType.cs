@@ -1,0 +1,1 @@
+public enum GameOverType { Stranded, Mutiny, Broken };
