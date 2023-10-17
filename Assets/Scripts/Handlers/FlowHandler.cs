@@ -10,7 +10,8 @@ public class FlowHandler : MonoBehaviour {
 	[SerializeField] GameEventContainer gameEventContainer; 
 	[SerializeField] ChoiceEventHandler choiceEventHandler;
 	[SerializeField] OrganizationEventHandler organizationEventHandler;
-	[SerializeField] GameOverHandler gameOverHandler;
+	[SerializeField] GameOverHandler gameOverHandler; 
+	[SerializeField] VictoryHandler victoryHandler;
 	[SerializeField] EventSystem eventSystem;
 
 	private GameEvent currentEvent;
@@ -69,6 +70,7 @@ public class FlowHandler : MonoBehaviour {
 				return;
 			} else {
 				if (victory != null) {
+					victoryHandler.SetVictory((VictoryType)victory);
 					await viewHandler.EnterView(targetView, (int)victory);
 					return;
 				}
@@ -91,7 +93,7 @@ public class FlowHandler : MonoBehaviour {
 
 	private VictoryType? CheckVictory() {
 		if (gameEventContainer.EventExists(nextEventIndex)) return null;
-		return null;
+		return VictoryType.GoodEnd;
 	}
 
 	private GameOverType? CheckGameOver(View targetView) {

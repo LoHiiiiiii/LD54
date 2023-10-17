@@ -8,6 +8,7 @@ public class ViewHandler : MonoBehaviour {
 	[SerializeField] Transform station; 
 	[SerializeField] GameObject mainMenu;
 	[SerializeField] GameObject gameOver;
+	[SerializeField] GameObject victory;
 	[SerializeField] GameObject resourceHandler;
 	[SerializeField] CurtainHandler curtainHandler;
 	[SerializeField] TrainMover trainMover;
@@ -53,7 +54,8 @@ public class ViewHandler : MonoBehaviour {
 
 		station.gameObject.SetActive(targetView == View.Station);
 		gameOver.SetActive(targetView == View.GameOver);
-		resourceHandler.SetActive(targetView != View.GameOver && targetView != View.MainMenu);
+		victory.SetActive(targetView == View.Win);
+		resourceHandler.SetActive(targetView == View.Abyss || targetView == View.Station);
 
 		var trainTask = (targetView == View.Abyss || targetView == View.Station) ? trainMover.TrainEnter(targetView == View.Abyss) : Task.CompletedTask;
 		PlayMusic(targetView);
@@ -61,7 +63,6 @@ public class ViewHandler : MonoBehaviour {
 			curtainHandler.FadeIn(), 
 			trainTask);
 		CurrentView = targetView;
-
 	}
 
 	private void PlayMusic(View targetView) {
